@@ -1,26 +1,20 @@
 // codigo final do arduino para a estacao meteorologica
 
-// Parametros:
-    // Sensor de umidade
+// Inclusão de bibliotecas:
 #include "DHT.h"
-#define DHTPIN 2 // O pino onde o DHT vai estar conectado
-#define DHTTYPE DHT22 // DHT 22 (AM2302)
-DHT dht(DHTPIN, DHTTYPE);
-
-    //Sensor de temperatura
-int sensorValue = 0;
-float volts;
-float celsius;
-
-    // Display
 #include <Wire.h> // biblioteca para comunicacao I²C
 #include <LiquidCrystal_I2C.h> // biblioteca do LCD com I²C
-LiquidCrystal_I2C lcd(0x3F,16,2); // endereço LCD I²C e qtde colunas e linhas
-
-    // Sensor de pressao
-#include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
+
+// Criação de elementos:
+// LCD
+LiquidCrystal_I2C lcd(0x27,16,2); // endereço LCD I²C e qtde colunas e linhas
+// DHT-22
+#define DHTPIN 3 // O pino onde o DHT vai estar conectado
+#define DHTTYPE DHT22 // DHT 22 (AM2302)
+DHT dht(DHTPIN, DHTTYPE); // Criação do DHT
+// BMP-280
 #define BMP_SCK  (13)
 #define BMP_MISO (12)
 #define BMP_MOSI (11)
@@ -28,8 +22,11 @@ LiquidCrystal_I2C lcd(0x3F,16,2); // endereço LCD I²C e qtde colunas e linhas
 Adafruit_BMP280 bmp; // I2C
 //Adafruit_BMP280 bmp(BMP_CS); // hardware SPI
 //Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
-
-    // Sensor Luminosidade
+// TMP-36
+int sensorValue = 0;
+float volts;
+float celsius;
+// Sensor Luminosidade
 int sensorValue2; double tensao, res, lum;
 
 
@@ -54,7 +51,6 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
-  lcd.backlight();
 }
 
 void loop() {
@@ -62,36 +58,23 @@ void loop() {
   sensorValue = analogRead(A0);
   volts = (sensorValue + 1.1)/ 1023.0;
   celsius = 100.0 * volts - 50.0;
-
   Serial.print(celsius);
-  Serial.print(" C, ");
+  Serial.println(" C, ");
   Serial.print(volts);
   Serial.println(" V ");
 
-  // // Display
-  // lcd.backlight(); // liga o backlight
-  // lcd.setCursor (0,0); // posiciona o cursor na posição coluna 0, linha 0
-  // lcd.print ("Temperatura [oC]:"); //escreve no LCD
-  // lcd.setCursor (0,1); // posiciona o cursor na posição coluna 0, linha 1
-  // lcd.print (celsius); //escreve no LCD
 
   // Sensor Umidade
   float umidade = dht.readHumidity();
   Serial.print("Umidade Relativa (%): ");
   Serial.println(umidade);
-  Serial.println();
+
 
   // Sensor Luminosidade
   sensorValue2 = analogRead(A1); // Lê valor binário
   tensao = (sensorValue2 / 1023.0) * 1.1; // Conver em tensão
   res = (tensao * 51000.0) / (3.3 - tensao); // Resis. LDR
   lum = pow(10, 6.05 - 1.03 * log10(res)); // Converte em luminosidade
-  Serial.print("\nA1 [int]: ");
-  Serial.println(sensorValue2); // Exibe dado A1 em int
-  Serial.print("Tensao [V]: ");
-  Serial.println(tensao); // Exibe tensao
-  Serial.print("Resistencia [k ohm]: ");
-  Serial.println(res / 1000); // Exibe resistencia
   Serial.print("Luminosidade [Lux]: ");
   Serial.println(lum); // Exibe luminosidade
 
@@ -103,33 +86,61 @@ void loop() {
   Serial.println(" Pa");
 
   Serial.print(F("Approx altitude = "));
-  Serial.print(bmp.readAltitude(1013.25)); /* Adjusted to local forecast! */
+  float altitude = bmp.readAltitude(1013.25);
+  Serial.print(altitude); /* Adjusted to local forecast! */
   Serial.println(" m");
 
   Serial.println();
 
   // Display:
+
+  lcd.clear();
+
   lcd.setCursor(0, 0);
-  lcd.print("Temp.(°C): ");
-  lcd.setCursor(12, 0);
+  lcd.print("Temp:");
+  lcd.setCursor(6, 0);
   lcd.print(celsius);
+  lcd.setCursor(14,0);
+  lcd.print("oC");
   lcd.setCursor(0, 1);
-  lcd.print("Umid.(%): ");
-  lcd.setCursor(11, 1);
+  lcd.print("Umid:");
+  lcd.setCursor(6, 1);
   lcd.print(umidade);
+  lcd.setCursor(15,1);
+  lcd.print("%");
 
   delay(3000);
 
   lcd.clear();
 
   lcd.setCursor(0, 0);
-  lcd.print("Pres.(Pa): ");
-  lcd.setCursor(13, 0);
-  lcd.print(pressao);
+  lcd.print("Luminosidade:");
   lcd.setCursor(0, 1);
-  lcd.print("Lum.(Lux): ");
-  lcd.setCursor(12, 1);
   lcd.print(lum);
+  lcd.setCursor(13, 1);
+  lcd.print("Lux");
+
+  delay(3000);
+
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Pressao:");
+  lcd.setCursor(0, 1);
+  lcd.print(pressao);
+  lcd.setCursor(14, 1);
+  lcd.print("Pa");
+
+  delay(3000);
+
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Altitude:");
+  lcd.setCursor(0, 1);
+  lcd.print(altitude);
+  lcd.setCursor(15, 1);
+  lcd.print("m");
 
   delay(3000);
 }
