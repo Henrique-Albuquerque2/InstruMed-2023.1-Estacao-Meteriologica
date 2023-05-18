@@ -1,4 +1,4 @@
-// codigo final do arduino para a estacao meteorologica
+// codigo final do arduino para a estacao meteriologica
 
 // Inclusão de bibliotecas:
 #include "DHT.h"
