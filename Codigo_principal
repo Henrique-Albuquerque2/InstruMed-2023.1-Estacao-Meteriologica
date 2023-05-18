@@ -40,6 +40,7 @@ void setup() {
   analogReference(INTERNAL); // Fundo escala 1,1V
   dht.begin();
   lcd.init(); // inicializa LCD
+  lcd.backlight();
   while ( !Serial ) delay(100);   // wait for native usb
   //Serial.println(F("BMP280 test"));
   unsigned status;
@@ -67,17 +68,17 @@ void loop() {
   Serial.print(volts);
   Serial.println(" V ");
 
-  // Display
-  lcd.backlight(); // liga o backlight
-  lcd.setCursor (0,0); // posiciona o cursor na posição coluna 0, linha 0
-  lcd.print ("Temperatura [oC]:"); //escreve no LCD
-  lcd.setCursor (0,1); // posiciona o cursor na posição coluna 0, linha 1
-  lcd.print (celsius); //escreve no LCD
+  // // Display
+  // lcd.backlight(); // liga o backlight
+  // lcd.setCursor (0,0); // posiciona o cursor na posição coluna 0, linha 0
+  // lcd.print ("Temperatura [oC]:"); //escreve no LCD
+  // lcd.setCursor (0,1); // posiciona o cursor na posição coluna 0, linha 1
+  // lcd.print (celsius); //escreve no LCD
 
   // Sensor Umidade
-  float h = dht.readHumidity();
+  float umidade = dht.readHumidity();
   Serial.print("Umidade Relativa (%): ");
-  Serial.println(h);
+  Serial.println(umidade);
   Serial.println();
 
   // Sensor Luminosidade
@@ -97,7 +98,8 @@ void loop() {
   // Sensor de pressao
 
   Serial.print(F("Pressure = "));
-  Serial.print(bmp.readPressure());
+  float pressao = bmp.readPressure();
+  Serial.print(pressao);
   Serial.println(" Pa");
 
   Serial.print(F("Approx altitude = "));
@@ -105,5 +107,29 @@ void loop() {
   Serial.println(" m");
 
   Serial.println();
-  delay(2000);
+
+  // Display:
+  lcd.setCursor(0, 0);
+  lcd.print("Temp.(°C): ");
+  lcd.setCursor(12, 0);
+  lcd.print(celsius);
+  lcd.setCursor(0, 1);
+  lcd.print("Umid.(%): ");
+  lcd.setCursor(11, 1);
+  lcd.print(umidade);
+
+  delay(3000);
+
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Pres.(Pa): ");
+  lcd.setCursor(13, 0);
+  lcd.print(pressao);
+  lcd.setCursor(0, 1);
+  lcd.print("Lum.(Lux): ");
+  lcd.setCursor(12, 1);
+  lcd.print(lum);
+
+  delay(3000);
 }
