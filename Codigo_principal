@@ -1,20 +1,23 @@
-// codigo final do arduino para a estacao meteriologica
+// Código final para a estação meteorológica
 
-// Inclusão de bibliotecas:
+    // Inclusão de bibliotecas:
 #include "DHT.h"
 #include <Wire.h> // biblioteca para comunicacao I²C
 #include <LiquidCrystal_I2C.h> // biblioteca do LCD com I²C
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
 
-// Criação de elementos:
-// LCD
+    // Criação de elementos:
+// LCD - Visor
 LiquidCrystal_I2C lcd(0x27,16,2); // endereço LCD I²C e qtde colunas e linhas
-// DHT-22
+
+// DHT-22 - Sensor de umidade
 #define DHTPIN 3 // O pino onde o DHT vai estar conectado
 #define DHTTYPE DHT22 // DHT 22 (AM2302)
 DHT dht(DHTPIN, DHTTYPE); // Criação do DHT
-// BMP-280
+float umidade;
+
+// BMP-280 - Sensor de pressão 
 #define BMP_SCK  (13)
 #define BMP_MISO (12)
 #define BMP_MOSI (11)
@@ -22,22 +25,49 @@ DHT dht(DHTPIN, DHTTYPE); // Criação do DHT
 Adafruit_BMP280 bmp; // I2C
 //Adafruit_BMP280 bmp(BMP_CS); // hardware SPI
 //Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
-// TMP-36
+float altitude;
+float pressao;
+
+// TMP-36 - Sensor de temperatura
 int sensorValue = 0;
 float volts;
 float celsius;
-// Sensor Luminosidade
+
+// LDR - Sensor de luminosidade
 int sensorValue2; double tensao, res, lum;
 
+// Criando os caracteres especiais
+byte graus[8]={
+  B01110,
+  B10001,
+  B10001,
+  B10001,
+  B01110,
+  B00000,
+  B00000,
+  B00000,
+  };
+byte mais_menos[8]={
+  B00100,
+  B00100,
+  B11111,
+  B00100,
+  B00100,
+  B00000,
+  B11111,
+  B00000,
+  };
 
+
+// Início do código
 void setup() {
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  Serial.begin(9600); // inicializa serial
-  analogReference(INTERNAL); // Fundo escala 1,1V
-  dht.begin();
-  lcd.init(); // inicializa LCD
-  lcd.backlight();
+  pinMode(A0, INPUT); // Definindo pino A0 como input
+  pinMode(A1, INPUT); // Definindo pino A1 como input
+  analogReference(INTERNAL); // Reduz fundo de escala a 1,1V, para diminuir resolução
+  Serial.begin(9600); // Inicializa comunicação serial
+  dht.begin(); // Inicializa sensor DHT
+  lcd.init(); // Inicializa painel LCD
+  lcd.backlight(); // Liga a luz de fundo do painel LCD
   while ( !Serial ) delay(100);   // wait for native usb
   //Serial.println(F("BMP280 test"));
   unsigned status;
@@ -50,96 +80,91 @@ void setup() {
                   Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
-
+  lcd.createChar(0,graus);
+  lcd.createChar(1,mais_menos);
 }
 
 void loop() {
   // Sensor Temperatura
   sensorValue = analogRead(A0);
   volts = (sensorValue + 1.1)/ 1023.0;
-  celsius = 100.0 * volts - 50.0;
-  Serial.print(celsius);
-  Serial.println(" C, ");
-  Serial.print(volts);
-  Serial.println(" V ");
-
+  celsius = 97.37 * volts - 48.35;
 
   // Sensor Umidade
-  float umidade = dht.readHumidity();
-  Serial.print("Umidade Relativa (%): ");
-  Serial.println(umidade);
-
+  umidade = 1.14* dht.readHumidity() - 7.41;
 
   // Sensor Luminosidade
   sensorValue2 = analogRead(A1); // Lê valor binário
   tensao = (sensorValue2 / 1023.0) * 1.1; // Conver em tensão
   res = (tensao * 51000.0) / (3.3 - tensao); // Resis. LDR
   lum = pow(10, 6.05 - 1.03 * log10(res)); // Converte em luminosidade
-  Serial.print("Luminosidade [Lux]: ");
-  Serial.println(lum); // Exibe luminosidade
 
   // Sensor de pressao
-
-  Serial.print(F("Pressure = "));
-  float pressao = bmp.readPressure();
-  Serial.print(pressao);
-  Serial.println(" Pa");
-
-  Serial.print(F("Approx altitude = "));
-  float altitude = bmp.readAltitude(1013.25);
-  Serial.print(altitude); /* Adjusted to local forecast! */
-  Serial.println(" m");
-
-  Serial.println();
+  pressao = bmp.readPressure();
+  altitude = bmp.readAltitude(1013.25);
 
   // Display:
+  lcd.clear();
+
+  lcd.setCursor(2, 0);
+  lcd.print("Temperatura:");
+  lcd.setCursor(1, 1);
+  lcd.print(celsius);
+  lcd.setCursor(7,1);
+  lcd.write(byte(1));
+  lcd.setCursor(9,1);
+  lcd.print("1.00");
+  lcd.setCursor(14,1);
+  lcd.write(byte(0));
+  lcd.setCursor(15,1);
+  lcd.print("C");
+  
+  delay(3000);
 
   lcd.clear();
 
-  lcd.setCursor(0, 0);
-  lcd.print("Temp:");
-  lcd.setCursor(6, 0);
-  lcd.print(celsius);
-  lcd.setCursor(14,0);
-  lcd.print("oC");
-  lcd.setCursor(0, 1);
-  lcd.print("Umid:");
-  lcd.setCursor(6, 1);
+  lcd.setCursor(4, 0);
+  lcd.print("Umidade:");
+  lcd.setCursor(1, 1);
   lcd.print(umidade);
-  lcd.setCursor(15,1);
+  lcd.setCursor(7,1);
+  lcd.write(byte(1));
+  lcd.setCursor(9,1);
+  lcd.print("2.00");
+  lcd.setCursor(14,1);
   lcd.print("%");
 
   delay(3000);
 
   lcd.clear();
 
-  lcd.setCursor(0, 0);
+  lcd.setCursor(2, 0);
   lcd.print("Luminosidade:");
-  lcd.setCursor(0, 1);
+  lcd.setCursor(3, 1);
   lcd.print(lum);
-  lcd.setCursor(13, 1);
-  lcd.print("Lux");
+  lcd.setCursor(11, 1);
+  lcd.print("lx");
 
   delay(3000);
 
   lcd.clear();
 
-  lcd.setCursor(0, 0);
+  lcd.setCursor(4, 0);
   lcd.print("Pressao:");
-  lcd.setCursor(0, 1);
+  lcd.setCursor(2, 1);
   lcd.print(pressao);
-  lcd.setCursor(14, 1);
+  lcd.setCursor(11, 1);
   lcd.print("Pa");
 
   delay(3000);
 
   lcd.clear();
 
-  lcd.setCursor(0, 0);
+  lcd.setCursor(4, 0);
   lcd.print("Altitude:");
-  lcd.setCursor(0, 1);
+  lcd.setCursor(4, 1);
   lcd.print(altitude);
-  lcd.setCursor(15, 1);
+  lcd.setCursor(11, 1);
   lcd.print("m");
 
   delay(3000);
