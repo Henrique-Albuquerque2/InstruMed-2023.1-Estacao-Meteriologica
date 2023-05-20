@@ -116,7 +116,53 @@ void setup() {
   lcd.createChar(2,a_tio);
   lcd.createChar(3,o_com_acento_agudo);
   lcd.createChar(4,c_sidilha);
+
+  int contador = 0;
+  while (contador < 1) {
+    lcd.setCursor(4,0);
+    lcd.print("Esta  o");
+    lcd.setCursor(8,0);
+    lcd.write(byte(4));
+    lcd.setCursor(9,0);
+    lcd.write(byte(2));
+    lcd.setCursor(1,1);
+    lcd.print("Meteriol gica");
+    lcd.setCursor(9,1);
+    lcd.write(byte(3));
+    delay(5000);
+
+    lcd.clear();
+
+    lcd.setCursor(2,0);
+    lcd.print("Produced by:");
+
+    lcd.setCursor(0,1);
+    lcd.print("Gustavo T Braga");
+    delay(3000);
+
+    lcd.clear();
+
+    lcd.setCursor(2,0);
+    lcd.print("Henrique A A");
+    lcd.setCursor(6,1);
+    lcd.print("and");
+    delay(3000);
+
+    lcd.clear();
+
+    lcd.setCursor(2,0);
+    lcd.print("Jo o V Nunes");
+    lcd.setCursor(4,0);
+    lcd.write(byte(2));
+    delay(3000);
+
+    lcd.clear();
+
+    contador++;
+  };
+
 }
+
 
 void loop() {
   // Sensor de Temperatura
@@ -138,25 +184,6 @@ void loop() {
   altitude = bmp.readAltitude(1013.25);
 
   // Display:
-  int contador = 0;
-  while (contador < 1) {
-    lcd.setCursor(4,0);
-    lcd.print("Esta  o");
-    lcd.setCursor(8,0);
-    lcd.write(byte(4));
-    lcd.setCursor(9,0);
-    lcd.write(byte(2));
-    lcd.setCursor(1,1);
-    lcd.print("Meteriol gica");
-    lcd.setCursor(9,1);
-    lcd.write(byte(3));
-    delay(5000);
-
-    contador++;
-  };
-
-  lcd.clear();
-
   lcd.setCursor(2, 0);
   lcd.print("Temperatura:");
   lcd.setCursor(1, 1);
@@ -170,7 +197,7 @@ void loop() {
   lcd.setCursor(15,1);
   lcd.print("C");
   
-  delay(3000);
+  delay(5000);
 
   lcd.clear();
 
@@ -185,7 +212,7 @@ void loop() {
   lcd.setCursor(14,1);
   lcd.print("%");
 
-  delay(3000);
+  delay(5000);
 
   lcd.clear();
 
@@ -196,7 +223,7 @@ void loop() {
   lcd.setCursor(11, 1);
   lcd.print("lx");
 
-  delay(3000);
+  delay(5000);
 
   lcd.clear();
 
@@ -209,7 +236,7 @@ void loop() {
   lcd.setCursor(11, 1);
   lcd.print("Pa");
 
-  delay(3000);
+  delay(5000);
 
   lcd.clear();
 
@@ -220,5 +247,7 @@ void loop() {
   lcd.setCursor(11, 1);
   lcd.print("m");
 
-  delay(3000);
+  delay(5000);
+
+  lcd.clear();
 }
