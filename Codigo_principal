@@ -38,11 +38,11 @@ int sensorValue2; double tensao, res, lum;
 
 // Criando os caracteres especiais
 byte graus[8]={
-  B01110,
-  B10001,
-  B10001,
-  B10001,
-  B01110,
+  B00110,
+  B01001,
+  B01001,
+  B00110,
+  B00000,
   B00000,
   B00000,
   B00000,
