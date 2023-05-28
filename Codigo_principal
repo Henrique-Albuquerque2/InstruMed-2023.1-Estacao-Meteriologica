@@ -165,7 +165,7 @@ void loop() {
   celsius = 97.37 * volts - 48.35;
 
   // Sensor de Umidade (DHT-22)
-  umidade = 1.14* dht.readHumidity() - 7.41;
+  umidade = 1.14* dht.readHumidity() - 7.44;
 
   // Sensor de Luminosidade (LDR)
   sensorValue2 = analogRead(A1); // Lê valor binário
