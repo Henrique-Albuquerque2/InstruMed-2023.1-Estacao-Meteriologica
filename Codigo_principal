@@ -124,15 +124,15 @@ void setup() {
   lcd.setCursor(9,0);
   lcd.write(byte(2));
   lcd.setCursor(1,1);
-  lcd.print("Meteriol gica");
+  lcd.print("Meteorol gica");
   lcd.setCursor(9,1);
   lcd.write(byte(3));
   delay(5000);
 
   lcd.clear();
 
-  lcd.setCursor(2,0);
-  lcd.print("Produced by:");
+  lcd.setCursor(1,0);
+  lcd.print("Produzido por:");
 
   lcd.setCursor(0,1);
   lcd.print("Gustavo T Braga");
@@ -142,8 +142,8 @@ void setup() {
 
   lcd.setCursor(2,0);
   lcd.print("Henrique A A");
-  lcd.setCursor(6,1);
-  lcd.print("and");
+  lcd.setCursor(7,1);
+  lcd.print("e");
   delay(3000);
 
   lcd.clear();
@@ -159,36 +159,36 @@ void setup() {
 
 
 void loop() {
-  // Sensor de Temperatura
+  // Sensor de Temperatura (TMP-36)
   sensorValue = analogRead(A0);
-  volts = (sensorValue + 1.1)/ 1023.0;
+  volts = sensorValue * (1.1/ 1023.0);
   celsius = 97.37 * volts - 48.35;
 
-  // Sensor de Umidade
+  // Sensor de Umidade (DHT-22)
   umidade = 1.14* dht.readHumidity() - 7.41;
 
-  // Sensor de Luminosidade
+  // Sensor de Luminosidade (LDR)
   sensorValue2 = analogRead(A1); // Lê valor binário
   tensao = (sensorValue2 / 1023.0) * 1.1; // Conver em tensão
   res = (tensao * 51000.0) / (3.3 - tensao); // Resis. LDR
   lum = pow(10, 6.05 - 1.03 * log10(res)); // Converte em luminosidade
 
-  // Sensor de Pressão
+  // Sensor de Pressão (BMP-280)
   pressao = bmp.readPressure();
-  altitude = bmp.readAltitude(1013.25);
+  altitude = bmp.readAltitude(1023.0);
 
-  // Display:
+  // Display (LCD)
   lcd.setCursor(2, 0);
   lcd.print("Temperatura:");
-  lcd.setCursor(1, 1);
-  lcd.print(celsius);
+  lcd.setCursor(2, 1);
+  lcd.print(celsius,1);
   lcd.setCursor(7,1);
   lcd.write(byte(1));
   lcd.setCursor(9,1);
-  lcd.print("1.00");
-  lcd.setCursor(14,1);
+  lcd.print("1.0");
+  lcd.setCursor(13,1);
   lcd.write(byte(0));
-  lcd.setCursor(15,1);
+  lcd.setCursor(14,1);
   lcd.print("C");
   
   delay(5000);
@@ -197,13 +197,13 @@ void loop() {
 
   lcd.setCursor(4, 0);
   lcd.print("Umidade:");
-  lcd.setCursor(1, 1);
-  lcd.print(umidade);
+  lcd.setCursor(4, 1);
+  lcd.print(umidade,0);
   lcd.setCursor(7,1);
   lcd.write(byte(1));
   lcd.setCursor(9,1);
-  lcd.print("2.00");
-  lcd.setCursor(14,1);
+  lcd.print("2");
+  lcd.setCursor(11,1);
   lcd.print("%");
 
   delay(5000);
